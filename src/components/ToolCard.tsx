@@ -1,8 +1,16 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Bookmark, MapPin } from "lucide-react";
+import { Star, Bookmark, MapPin, Phone, User } from "lucide-react";
 import type { Property } from "@/data/tools";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface PropertyCardProps {
   tool: Property;
@@ -56,12 +64,32 @@ const PropertyCard = ({ tool }: PropertyCardProps) => {
               <p className="font-semibold">{tool.agent.name}</p>
               <p className="text-sm text-gray-500">{tool.agent.title}</p>
             </div>
-            <Button
-              variant="default"
-              onClick={() => window.open(tool.visitUrl, "_blank")}
-            >
-              Contact
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="default">
+                  Contact
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    {tool.agent.name}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <p className="text-gray-600">{tool.description}</p>
+                    <div className="flex items-center gap-2 mt-4">
+                      <Phone className="h-5 w-5 text-primary" />
+                      <a href={tool.visitUrl} className="text-primary hover:underline">
+                        {tool.visitUrl.replace('tel:', '')}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
