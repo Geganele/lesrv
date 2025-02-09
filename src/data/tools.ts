@@ -1,10 +1,10 @@
-
 import { MapPin } from "lucide-react";
 
 export type Property = {
   id: string;
   name: string;
   logo: string;
+  images: string[];
   rating: number;
   reviews: number;
   pricing: string;
@@ -39,9 +39,14 @@ export const properties: Property[] = [
     id: "1",
     name: "Healing Touch Spa",
     logo: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2",
+    images: [
+      "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874",
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1"
+    ],
     rating: 4.8,
     reviews: 15,
-    pricing: "M 350/hr",
+    pricing: "R 350/hr",
     description: "Expert Swedish and deep tissue massage therapy with aromatherapy options",
     tags: ["swedish", "deep-tissue", "aromatherapy"],
     category: "Maseru",
@@ -57,9 +62,14 @@ export const properties: Property[] = [
     id: "2",
     name: "Serenity Wellness Center",
     logo: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874",
+    images: [
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874",
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef"
+    ],
     rating: 4.9,
     reviews: 23,
-    pricing: "M 400/hr",
+    pricing: "R 400/hr",
     description: "Therapeutic massage combining traditional and modern techniques",
     tags: ["therapeutic", "sports", "relaxation"],
     category: "Maseru",
@@ -75,9 +85,12 @@ export const properties: Property[] = [
     id: "3",
     name: "Mountain View Massage",
     logo: "https://images.unsplash.com/photo-1519823551278-64ac92734fb1",
+    images: [
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1"
+    ],
     rating: 4.7,
     reviews: 18,
-    pricing: "M 375/hr",
+    pricing: "R 375/hr",
     description: "Specializing in sports massage and injury recovery therapy",
     tags: ["sports", "therapeutic", "recovery"],
     category: "Mafeteng",
@@ -93,9 +106,12 @@ export const properties: Property[] = [
     id: "4",
     name: "Peaceful Paradise Spa",
     logo: "https://images.unsplash.com/photo-1540555700478-4be289fbecef",
+    images: [
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef"
+    ],
     rating: 4.6,
     reviews: 12,
-    pricing: "M 450/hr",
+    pricing: "R 450/hr",
     description: "Luxury spa experience with hot stone and aromatherapy treatments",
     tags: ["hot-stone", "luxury", "aromatherapy"],
     category: "Quthing",
@@ -111,9 +127,12 @@ export const properties: Property[] = [
     id: "5",
     name: "Zen Massage Studio",
     logo: "https://images.unsplash.com/photo-1519415387722-a1c3bbef716c",
+    images: [
+      "https://images.unsplash.com/photo-1519415387722-a1c3bbef716c"
+    ],
     rating: 4.8,
     reviews: 20,
-    pricing: "M 380/hr",
+    pricing: "R 380/hr",
     description: "Traditional Thai massage and reflexology treatments",
     tags: ["thai", "reflexology", "traditional"],
     category: "Qacha's Nek",

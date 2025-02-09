@@ -1,12 +1,12 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Bookmark, MapPin, Phone, User } from "lucide-react";
+import { Star, Bookmark, MapPin, Phone, User, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Property } from "@/data/tools";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,14 +17,54 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ tool }: PropertyCardProps) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === tool.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const previousImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === 0 ? tool.images.length - 1 : prev - 1
+    );
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:animate-card-hover">
       <div className="relative">
         <img 
-          src={tool.logo} 
+          src={tool.images[currentImageIndex]} 
           alt={tool.name} 
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover transition-opacity duration-300"
         />
+        {tool.images.length > 1 && (
+          <>
+            <button 
+              onClick={(e) => { e.preventDefault(); previousImage(); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button 
+              onClick={(e) => { e.preventDefault(); nextImage(); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {tool.images.map((_, index) => (
+                <div 
+                  key={index}
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
         <div className="absolute top-4 right-4">
           <div className="bg-white rounded-full p-2">
             <Bookmark className="h-5 w-5" />
