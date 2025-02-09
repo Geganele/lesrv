@@ -24,7 +24,7 @@ const Index = () => {
 
   return (
     <div className="container py-8">
-      <h1 className="text-4xl font-bold mb-8">Lesotho Property Listings</h1>
+      <h1 className="text-4xl font-bold mb-8">Professional Massage Services</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <aside className="lg:col-span-1">
@@ -39,7 +39,7 @@ const Index = () => {
           
           {featuredProperties.length > 0 && (
             <>
-              <h2 className="text-2xl font-semibold mt-8 mb-4">Featured Properties</h2>
+              <h2 className="text-2xl font-semibold mt-8 mb-4">Featured Therapists</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {featuredProperties.map((property) => (
                   <PropertyCard key={property.id} tool={property} />
@@ -48,7 +48,7 @@ const Index = () => {
             </>
           )}
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4">All Properties</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">All Massage Services</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {regularProperties.map((property) => (
               <PropertyCard key={property.id} tool={property} />
@@ -57,7 +57,7 @@ const Index = () => {
           
           {filteredProperties.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">No properties found matching your criteria.</p>
+              <p className="text-gray-500">No massage services found matching your criteria.</p>
             </div>
           )}
         </main>

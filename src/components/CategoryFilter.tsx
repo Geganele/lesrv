@@ -11,7 +11,7 @@ interface CategoryFilterProps {
 const CategoryFilter = ({ selectedCategory, onSelectCategory }: CategoryFilterProps) => {
   return (
     <div className="sticky top-4 space-y-2">
-      <h2 className="text-xl font-semibold mb-4">Cities</h2>
+      <h2 className="text-xl font-semibold mb-4">Locations</h2>
       {cities.map((city) => (
         <Button
           key={city.name}

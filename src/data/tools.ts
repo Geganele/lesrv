@@ -1,4 +1,4 @@
-import { Building, MapPin, Home, Store, Warehouse, Castle } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 export type Property = {
   id: string;
@@ -36,38 +36,38 @@ export const cities = [
 export const properties: Property[] = [
   {
     id: "1",
-    name: "Luxury Villa in Maseru West",
-    logo: "https://placehold.co/400x300",
+    name: "Tranquil Touch Massage",
+    logo: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
     rating: 4.8,
     reviews: 15,
-    pricing: "M 2,500,000",
-    description: "Modern 4 bedroom villa with panoramic mountain views",
-    tags: ["luxury", "residential", "pool"],
+    pricing: "M 350/hr",
+    description: "Specializing in Swedish and deep tissue massage therapy",
+    tags: ["swedish", "deep-tissue", "aromatherapy"],
     category: "Maseru",
     featured: true,
-    visitUrl: "https://example.com",
+    visitUrl: "tel:+26657123456",
     bookmarks: 128,
     agent: {
-      name: "Thabo Mokoena",
-      title: "Senior Property Consultant"
+      name: "Sarah Johnson",
+      title: "Licensed Massage Therapist"
     }
   },
   {
     id: "2",
-    name: "Commercial Space in CBD",
-    logo: "https://placehold.co/400x300",
+    name: "Healing Hands Spa",
+    logo: "https://images.unsplash.com/photo-1721322800607-8c38375eef04",
     rating: 4.5,
     reviews: 8,
-    pricing: "M 1,800,000",
-    description: "Prime retail space in Maseru's business district",
-    tags: ["commercial", "retail", "central"],
+    pricing: "M 400/hr",
+    description: "Traditional and therapeutic massage techniques",
+    tags: ["therapeutic", "relaxation", "sports"],
     category: "Maseru",
     featured: true,
-    visitUrl: "https://example.com",
+    visitUrl: "tel:+26657123457",
     bookmarks: 95,
     agent: {
-      name: "Lineo Motseki",
-      title: "Commercial Property Specialist"
+      name: "Maria Thompson",
+      title: "Certified Massage Practitioner"
     }
   },
   {
