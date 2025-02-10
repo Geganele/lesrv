@@ -143,60 +143,60 @@ const Index = () => {
         )}
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="lg:col-span-1">
-          <div className="sticky top-4 space-y-6">
-            <CategoryFilter
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-            />
+      <div className="space-y-6 mb-8">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <CategoryFilter
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+          <div className="md:col-span-2">
             <TagFilter
               selectedTags={selectedTags}
               onTagSelect={handleTagSelect}
               availableTags={availableTags}
             />
           </div>
-        </aside>
-        
-        <main className="lg:col-span-3">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
-          
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-pulse space-y-4">
-                <div className="h-48 bg-gray-200 rounded-lg"></div>
-                <div className="h-48 bg-gray-200 rounded-lg"></div>
-              </div>
-            </div>
-          ) : (
-            <>
-              {featuredProperties.length > 0 && (
-                <>
-                  <h2 className="text-2xl font-semibold mt-8 mb-4">Featured Therapists</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {featuredProperties.map((property) => (
-                      <PropertyCard key={property.id} tool={property} />
-                    ))}
-                  </div>
-                </>
-              )}
-              
-              <h2 className="text-2xl font-semibold mt-8 mb-4">All Massage Services</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {regularProperties.map((property) => (
-                  <PropertyCard key={property.id} tool={property} />
-                ))}
-              </div>
-              
-              {filteredProperties.length === 0 && !loading && (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">No massage services found matching your criteria.</p>
-                </div>
-              )}
-            </>
-          )}
-        </main>
+        </div>
       </div>
+      
+      <main>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-pulse space-y-4">
+              <div className="h-48 bg-gray-200 rounded-lg"></div>
+              <div className="h-48 bg-gray-200 rounded-lg"></div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {featuredProperties.length > 0 && (
+              <>
+                <h2 className="text-2xl font-semibold mt-8 mb-4">Featured Therapists</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {featuredProperties.map((property) => (
+                    <PropertyCard key={property.id} tool={property} />
+                  ))}
+                </div>
+              </>
+            )}
+            
+            <h2 className="text-2xl font-semibold mt-8 mb-4">All Massage Services</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {regularProperties.map((property) => (
+                <PropertyCard key={property.id} tool={property} />
+              ))}
+            </div>
+            
+            {filteredProperties.length === 0 && !loading && (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No massage services found matching your criteria.</p>
+              </div>
+            )}
+          </>
+        )}
+      </main>
     </div>
   );
 };
