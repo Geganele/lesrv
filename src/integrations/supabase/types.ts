@@ -9,7 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_therapist: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          is_therapist?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_therapist?: boolean | null
+        }
+        Relationships: []
+      }
+      therapists: {
+        Row: {
+          agent_name: string | null
+          agent_title: string | null
+          bookmarks: number | null
+          category: string | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          images: string[] | null
+          logo: string | null
+          name: string
+          pricing: string
+          rating: number | null
+          reviews: number | null
+          tags: string[] | null
+          updated_at: string
+          visit_url: string | null
+        }
+        Insert: {
+          agent_name?: string | null
+          agent_title?: string | null
+          bookmarks?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          images?: string[] | null
+          logo?: string | null
+          name: string
+          pricing: string
+          rating?: number | null
+          reviews?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          visit_url?: string | null
+        }
+        Update: {
+          agent_name?: string | null
+          agent_title?: string | null
+          bookmarks?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          images?: string[] | null
+          logo?: string | null
+          name?: string
+          pricing?: string
+          rating?: number | null
+          reviews?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          visit_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

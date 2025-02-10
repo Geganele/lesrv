@@ -1,13 +1,77 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
 import PropertyCard from "@/components/ToolCard";
-import { properties } from "@/data/tools";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import type { Property } from "@/data/tools";
+import { LogOut } from "lucide-react";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [session, setSession] = useState<any>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchTherapists = async () => {
+      const { data, error } = await supabase
+        .from('therapists')
+        .select('*');
+      
+      if (error) {
+        console.error('Error fetching therapists:', error);
+        return;
+      }
+
+      if (data) {
+        const formattedData: Property[] = data.map(therapist => ({
+          id: therapist.id,
+          name: therapist.name,
+          logo: therapist.logo || '',
+          images: therapist.images || [],
+          rating: therapist.rating || 0,
+          reviews: therapist.reviews || 0,
+          pricing: session ? therapist.pricing : 'Sign in to view pricing',
+          description: therapist.description || '',
+          tags: therapist.tags || [],
+          category: therapist.category || '',
+          featured: therapist.featured || false,
+          visitUrl: therapist.visit_url || '',
+          bookmarks: therapist.bookmarks || 0,
+          agent: {
+            name: therapist.agent_name || '',
+            title: therapist.agent_title || ''
+          }
+        }));
+        setProperties(formattedData);
+      }
+    };
+
+    fetchTherapists();
+  }, [session]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
 
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -24,7 +88,19 @@ const Index = () => {
 
   return (
     <div className="container py-8">
-      <h1 className="text-4xl font-bold mb-8">Professional Massage Services</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">Professional Massage Services</h1>
+        {session ? (
+          <Button onClick={handleSignOut} variant="outline">
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        ) : (
+          <Button onClick={() => navigate('/auth')}>
+            Sign In
+          </Button>
+        )}
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <aside className="lg:col-span-1">
