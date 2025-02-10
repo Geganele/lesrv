@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
+import TagFilter from "@/components/TagFilter";
 import PropertyCard from "@/components/ToolCard";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,9 +14,11 @@ import { useToast } from "@/components/ui/use-toast";
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [session, setSession] = useState<any>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -71,6 +74,13 @@ const Index = () => {
             }
           }));
           setProperties(formattedData);
+          
+          // Extract unique tags
+          const allTags = new Set<string>();
+          formattedData.forEach(therapist => {
+            therapist.tags.forEach(tag => allTags.add(tag));
+          });
+          setAvailableTags(Array.from(allTags));
         }
       } catch (error) {
         toast({
@@ -91,6 +101,14 @@ const Index = () => {
     navigate('/auth');
   };
 
+  const handleTagSelect = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       property.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -98,33 +116,43 @@ const Index = () => {
     
     const matchesCategory = !selectedCategory || property.category === selectedCategory;
     
-    return matchesSearch && matchesCategory;
+    const matchesTags = selectedTags.length === 0 || 
+      selectedTags.every(tag => property.tags.includes(tag));
+    
+    return matchesSearch && matchesCategory && matchesTags;
   });
 
   const featuredProperties = filteredProperties.filter(property => property.featured);
   const regularProperties = filteredProperties.filter(property => !property.featured);
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Professional Massage Services</h1>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+          Professional Massage Services
+        </h1>
         {session ? (
-          <Button onClick={handleSignOut} variant="outline">
+          <Button onClick={handleSignOut} variant="outline" className="shadow-sm">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
         ) : (
-          <Button onClick={() => navigate('/auth')}>
+          <Button onClick={() => navigate('/auth')} className="shadow-sm">
             Sign In
           </Button>
         )}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="lg:col-span-1">
+        <aside className="lg:col-span-1 space-y-6">
           <CategoryFilter
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
+          />
+          <TagFilter
+            selectedTags={selectedTags}
+            onTagSelect={handleTagSelect}
+            availableTags={availableTags}
           />
         </aside>
         
@@ -133,7 +161,10 @@ const Index = () => {
           
           {loading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">Loading therapists...</p>
+              <div className="animate-pulse space-y-4">
+                <div className="h-48 bg-gray-200 rounded-lg"></div>
+                <div className="h-48 bg-gray-200 rounded-lg"></div>
+              </div>
             </div>
           ) : (
             <>
