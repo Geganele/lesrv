@@ -144,16 +144,18 @@ const Index = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="lg:col-span-1 space-y-6">
-          <CategoryFilter
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
-          <TagFilter
-            selectedTags={selectedTags}
-            onTagSelect={handleTagSelect}
-            availableTags={availableTags}
-          />
+        <aside className="lg:col-span-1">
+          <div className="sticky top-4 space-y-6">
+            <CategoryFilter
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+            <TagFilter
+              selectedTags={selectedTags}
+              onTagSelect={handleTagSelect}
+              availableTags={availableTags}
+            />
+          </div>
         </aside>
         
         <main className="lg:col-span-3">
