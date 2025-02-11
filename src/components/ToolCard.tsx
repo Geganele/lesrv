@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { Bookmark } from "lucide-react";
+import { Bookmark, MapPin } from "lucide-react"; // Added MapPin import
 import type { Property } from "@/data/tools";
 import { useState } from "react";
 import { ImageGallery } from "./cards/ImageGallery";
