@@ -12,19 +12,17 @@ const CategoryFilter = ({ selectedCategory, onSelectCategory }: CategoryFilterPr
   return (
     <div className="sticky top-4 space-y-2">
       <h2 className="text-xl font-semibold mb-4">Locations</h2>
-      <div className="flex flex-col gap-2">
-        {cities.map((city) => (
-          <Button
-            key={city.name}
-            variant={selectedCategory === city.name ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => onSelectCategory(city.name)}
-          >
-            <MapPin className="mr-2 h-4 w-4" />
-            {city.name}
-          </Button>
-        ))}
-      </div>
+      {cities.map((city) => (
+        <Button
+          key={city.name}
+          variant={selectedCategory === city.name ? "default" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => onSelectCategory(city.name)}
+        >
+          <MapPin className="mr-2 h-4 w-4" />
+          {city.name}
+        </Button>
+      ))}
     </div>
   );
 };
