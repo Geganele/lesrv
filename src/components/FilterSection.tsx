@@ -26,18 +26,16 @@ const FilterSection = ({
     <div className="space-y-6 mb-8">
       <SearchBar value={searchQuery} onChange={onSearchChange} />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <CategoryFilter
           selectedCategory={selectedCategory}
           onSelectCategory={onCategorySelect}
         />
-        <div className="md:col-span-2">
-          <TagFilter
-            selectedTags={selectedTags}
-            onTagSelect={onTagSelect}
-            availableTags={availableTags}
-          />
-        </div>
+        <TagFilter
+          selectedTags={selectedTags}
+          onTagSelect={onTagSelect}
+          availableTags={availableTags}
+        />
       </div>
     </div>
   );
