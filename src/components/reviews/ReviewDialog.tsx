@@ -33,8 +33,20 @@ export const ReviewDialog = ({ isOpen, onOpenChange, therapist, onReviewSubmitte
 
     setIsSubmitting(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please sign in to leave a review",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase.from('reviews').insert({
         therapist_id: therapist.id,
+        user_id: user.id,
         rating,
         comment,
       });

@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Bookmark, MapPin } from "lucide-react";
-import type { Property } from "@/data/tools";
 import { useState, useEffect } from "react";
 import { ImageGallery } from "./cards/ImageGallery";
 import { ImageGalleryDialog } from "./cards/ImageGalleryDialog";
@@ -9,7 +8,8 @@ import { ContactDialog } from "./cards/ContactDialog";
 import { ReviewDialog } from "./reviews/ReviewDialog";
 import { SubscriptionDialog } from "./subscription/SubscriptionDialog";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PropertyCardProps {
   tool: Property;
