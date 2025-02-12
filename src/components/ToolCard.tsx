@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Bookmark, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -10,6 +11,7 @@ import { SubscriptionDialog } from "./subscription/SubscriptionDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import type { Property } from "@/data/tools";
 
 interface PropertyCardProps {
   tool: Property;
@@ -26,12 +28,20 @@ const PropertyCard = ({ tool }: PropertyCardProps) => {
 
   useEffect(() => {
     const checkSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setHasSubscription(false);
+        return;
+      }
+
       const { data: subscription } = await supabase
         .from('subscriptions')
         .select('status, subscription_type')
+        .eq('user_id', user.id)
         .eq('status', 'active')
         .eq('subscription_type', 'premium')
-        .single();
+        .maybeSingle();
       
       setHasSubscription(!!subscription);
     };
