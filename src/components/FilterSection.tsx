@@ -26,7 +26,7 @@ const FilterSection = ({
     <div className="space-y-6 mb-8">
       <SearchBar value={searchQuery} onChange={onSearchChange} />
       
-      <div className="grid grid-cols-1 gap-6">
+      <div className="space-y-6">
         <CategoryFilter
           selectedCategory={selectedCategory}
           onSelectCategory={onCategorySelect}
