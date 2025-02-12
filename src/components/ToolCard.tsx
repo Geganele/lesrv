@@ -1,12 +1,15 @@
-
 import { Card } from "@/components/ui/card";
-import { Bookmark, MapPin } from "lucide-react"; // Added MapPin import
+import { Bookmark, MapPin } from "lucide-react";
 import type { Property } from "@/data/tools";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageGallery } from "./cards/ImageGallery";
 import { ImageGalleryDialog } from "./cards/ImageGalleryDialog";
 import { BioDialog } from "./cards/BioDialog";
 import { ContactDialog } from "./cards/ContactDialog";
+import { ReviewDialog } from "./reviews/ReviewDialog";
+import { SubscriptionDialog } from "./subscription/SubscriptionDialog";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface PropertyCardProps {
   tool: Property;
@@ -16,6 +19,25 @@ const PropertyCard = ({ tool }: PropertyCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isBioOpen, setIsBioOpen] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [hasSubscription, setHasSubscription] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('status, subscription_type')
+        .eq('status', 'active')
+        .eq('subscription_type', 'premium')
+        .single();
+      
+      setHasSubscription(!!subscription);
+    };
+
+    checkSubscription();
+  }, []);
 
   const nextImage = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -29,6 +51,22 @@ const PropertyCard = ({ tool }: PropertyCardProps) => {
     setCurrentImageIndex((prev) => 
       prev === 0 ? tool.images.length - 1 : prev - 1
     );
+  };
+
+  const handleReviewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!hasSubscription) {
+      setIsSubscriptionOpen(true);
+    } else {
+      setIsReviewOpen(true);
+    }
+  };
+
+  const handleReviewSubmitted = () => {
+    toast({
+      title: "Success",
+      description: "Thank you for your review!",
+    });
   };
 
   return (
@@ -87,10 +125,19 @@ const PropertyCard = ({ tool }: PropertyCardProps) => {
             <div>
               <p className="font-semibold">{tool.agent.title}</p>
             </div>
-            <ContactDialog 
-              tool={tool}
-              onButtonClick={(e) => e.stopPropagation()}
-            />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReviewClick}
+              >
+                Write Review
+              </Button>
+              <ContactDialog 
+                tool={tool}
+                onButtonClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -109,6 +156,18 @@ const PropertyCard = ({ tool }: PropertyCardProps) => {
         isOpen={isBioOpen}
         onOpenChange={setIsBioOpen}
         tool={tool}
+      />
+
+      <ReviewDialog
+        isOpen={isReviewOpen}
+        onOpenChange={setIsReviewOpen}
+        therapist={tool}
+        onReviewSubmitted={handleReviewSubmitted}
+      />
+
+      <SubscriptionDialog
+        isOpen={isSubscriptionOpen}
+        onOpenChange={setIsSubscriptionOpen}
       />
     </Card>
   );
