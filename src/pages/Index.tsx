@@ -15,6 +15,7 @@ const Index = () => {
   const [session, setSession] = useState<any>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -37,20 +38,29 @@ const Index = () => {
     const fetchTherapists = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        // Add console logs to debug Supabase connection
+        console.log("Fetching therapists from Supabase...");
+        
         const { data, error } = await supabase
           .from('therapists')
           .select('*');
         
         if (error) {
+          console.error("Supabase error:", error);
+          setError("Failed to load therapists. Please try again later.");
           toast({
             title: "Error",
-            description: "Failed to load therapists",
+            description: "Failed to load therapists. Please try refreshing the page.",
             variant: "destructive",
           });
           return;
         }
 
-        if (data) {
+        console.log("Therapists data received:", data);
+        
+        if (data && data.length > 0) {
           const formattedData: Property[] = data.map(therapist => ({
             id: therapist.id,
             name: therapist.name,
@@ -70,18 +80,27 @@ const Index = () => {
               title: therapist.agent_title || ''
             }
           }));
+          
           setProperties(formattedData);
           
+          // Extract all unique tags
           const allTags = new Set<string>();
           formattedData.forEach(therapist => {
             therapist.tags.forEach(tag => allTags.add(tag));
           });
           setAvailableTags(Array.from(allTags));
+        } else {
+          console.log("No therapists found in database");
+          // Don't set error for empty results, just show empty state
+          setProperties([]);
+          setAvailableTags([]);
         }
       } catch (error) {
+        console.error("Unexpected error:", error);
+        setError("An unexpected error occurred");
         toast({
           title: "Error",
-          description: "An unexpected error occurred",
+          description: "An unexpected error occurred while fetching data",
           variant: "destructive",
         });
       } finally {
@@ -138,6 +157,7 @@ const Index = () => {
       <main>
         <TherapistListings
           loading={loading}
+          error={error}
           featuredProperties={featuredProperties}
           regularProperties={regularProperties}
           filteredProperties={filteredProperties}

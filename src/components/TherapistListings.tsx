@@ -1,9 +1,13 @@
 
 import PropertyCard from "@/components/ToolCard";
 import type { Property } from "@/data/tools";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { Button } from "@/components/ui/button";
 
 interface TherapistListingsProps {
   loading: boolean;
+  error: string | null;
   featuredProperties: Property[];
   regularProperties: Property[];
   filteredProperties: Property[];
@@ -11,6 +15,7 @@ interface TherapistListingsProps {
 
 const TherapistListings = ({
   loading,
+  error,
   featuredProperties,
   regularProperties,
   filteredProperties,
@@ -22,6 +27,28 @@ const TherapistListings = ({
           <div className="h-48 bg-gray-200 rounded-lg"></div>
           <div className="h-48 bg-gray-200 rounded-lg"></div>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-8">
+        <Alert variant="destructive">
+          <AlertTitle className="text-lg font-semibold">Error</AlertTitle>
+          <AlertDescription className="mt-2">
+            {error}
+            <div className="mt-4">
+              <Button 
+                onClick={() => window.location.reload()} 
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <ReloadIcon className="h-4 w-4" /> Refresh Page
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
