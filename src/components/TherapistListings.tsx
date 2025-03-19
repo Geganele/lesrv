@@ -1,4 +1,3 @@
-
 import PropertyCard from "@/components/ToolCard";
 import type { Property } from "@/data/tools";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -30,7 +29,7 @@ const TherapistListings = ({
       </div>
     );
   }
-
+  
   if (error) {
     return (
       <div className="py-8">
