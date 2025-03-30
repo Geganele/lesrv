@@ -1,4 +1,3 @@
-
 -- Create therapists table
 CREATE TABLE IF NOT EXISTS public.therapists (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -8,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.therapists (
   images TEXT[] DEFAULT ARRAY[]::TEXT[],
   rating NUMERIC(3,1) DEFAULT 0,
   reviews INTEGER DEFAULT 0,
-  pricing TEXT,
+  pricing TEXT NOT NULL,
   tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   category TEXT,
   featured BOOLEAN DEFAULT FALSE,

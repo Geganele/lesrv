@@ -106,6 +106,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     setLoading(true);
 
     try {
+      // Convert form data to match the database schema
       const therapistData = {
         name: formData.name,
         logo: formData.logo,
@@ -122,6 +123,8 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
         agent_title: formData.agent_title
       };
 
+      console.log("Attempting to save therapist with data:", therapistData);
+
       let response;
       if (editingTherapist) {
         response = await supabase
@@ -135,6 +138,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
       }
 
       if (response.error) {
+        console.error("Supabase error:", response.error);
         throw response.error;
       }
 
@@ -170,7 +174,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
       console.error("Error saving therapist:", error);
       toast({
         title: "Error",
-        description: "Failed to save therapist",
+        description: error instanceof Error ? error.message : "Failed to save therapist. Please make sure you're logged in as admin.",
         variant: "destructive",
       });
     } finally {
@@ -193,17 +197,19 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
               value={formData.name} 
               onChange={handleChange} 
               required 
+              placeholder="e.g., Healing Touch Spa"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Category/Location</Label>
+            <Label htmlFor="category">Location</Label>
             <Input 
               id="category" 
               name="category" 
               value={formData.category} 
               onChange={handleChange} 
               required 
+              placeholder="e.g., Johannesburg"
             />
           </div>
 
@@ -215,6 +221,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
               value={formData.description} 
               onChange={handleChange} 
               required 
+              placeholder="Brief description of services offered"
             />
           </div>
 
@@ -226,6 +233,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
               value={formData.pricing} 
               onChange={handleChange} 
               required 
+              placeholder="e.g., R 350/hr"
             />
           </div>
 
@@ -241,6 +249,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
                 step="0.1" 
                 value={formData.rating} 
                 onChange={handleChange} 
+                placeholder="0.0-5.0"
               />
             </div>
             <div className="space-y-2">
@@ -252,6 +261,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
                 min="0" 
                 value={formData.reviews} 
                 onChange={handleChange} 
+                placeholder="Number of reviews"
               />
             </div>
           </div>
@@ -263,6 +273,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
               name="logo" 
               value={formData.logo} 
               onChange={handleChange} 
+              placeholder="URL to logo image"
             />
           </div>
 
@@ -299,7 +310,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
               <Input 
                 value={newTag} 
                 onChange={(e) => setNewTag(e.target.value)} 
-                placeholder="Enter tag" 
+                placeholder="Enter tag (e.g., swedish, deep-tissue)" 
               />
               <Button type="button" onClick={addTag} variant="secondary">Add</Button>
             </div>
@@ -320,32 +331,35 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="visit_url">Website URL</Label>
+            <Label htmlFor="visit_url">Contact URL/Phone</Label>
             <Input 
               id="visit_url" 
               name="visit_url" 
               value={formData.visit_url} 
               onChange={handleChange} 
+              placeholder="e.g., tel:+26657123456 or website URL"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="agent_name">Agent Name</Label>
+            <Label htmlFor="agent_name">Therapist Name</Label>
             <Input 
               id="agent_name" 
               name="agent_name" 
               value={formData.agent_name} 
               onChange={handleChange} 
+              placeholder="e.g., Sarah Johnson"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="agent_title">Agent Title</Label>
+            <Label htmlFor="agent_title">Therapist Title</Label>
             <Input 
               id="agent_title" 
               name="agent_title" 
               value={formData.agent_title} 
               onChange={handleChange} 
+              placeholder="e.g., Licensed Massage Therapist"
             />
           </div>
 

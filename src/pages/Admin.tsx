@@ -8,7 +8,8 @@ import TherapistForm from "@/components/admin/TherapistForm";
 import TherapistsList from "@/components/admin/TherapistsList";
 import SubscriptionList from "@/components/admin/SubscriptionList";
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft } from "lucide-react";
+import { LogOut, ArrowLeft, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Admin = () => {
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,7 @@ const Admin = () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
       
-      // Check if user is admin - in a real app, this would be a more robust check
+      // Admin check - email based for this demo
       if (data.session?.user?.email === 'admin@example.com') {
         setIsAdmin(true);
       } else {
@@ -88,6 +89,13 @@ const Admin = () => {
           Sign Out
         </Button>
       </div>
+
+      <Alert className="mb-6 bg-blue-50 border-blue-200">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          Admin email: admin@example.com - Register this email to access admin features.
+        </AlertDescription>
+      </Alert>
 
       <Tabs defaultValue="therapists" className="w-full">
         <TabsList className="mb-6">
