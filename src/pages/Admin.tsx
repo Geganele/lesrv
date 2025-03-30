@@ -15,41 +15,69 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      
-      // Admin check - email based for this demo
-      if (data.session?.user?.email === 'admin@example.com') {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-        // If not admin, redirect to home
-        if (data.session) {
-          toast({
-            title: "Access Denied",
-            description: "You don't have admin privileges",
-            variant: "destructive",
-          });
-          navigate('/');
-        } else {
-          navigate('/auth');
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          throw error;
         }
+
+        setSession(data.session);
+        setAdminEmail(data.session?.user?.email || null);
+        
+        // Admin check - email based for this demo
+        if (data.session?.user?.email === 'admin@example.com') {
+          setIsAdmin(true);
+          console.log("Admin authenticated successfully:", data.session.user.email);
+        } else {
+          setIsAdmin(false);
+          console.log("Not admin:", data.session?.user?.email);
+          
+          // If logged in but not admin, redirect to home with message
+          if (data.session) {
+            toast({
+              title: "Access Denied",
+              description: "You don't have admin privileges",
+              variant: "destructive",
+            });
+            navigate('/');
+          } else {
+            navigate('/auth');
+          }
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        toast({
+          title: "Authentication Error",
+          description: "There was a problem checking your credentials",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
+        
         if (!session) {
           navigate('/auth');
+        } else if (session.user.email === 'admin@example.com') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+          navigate('/');
         }
       }
     );
@@ -58,8 +86,18 @@ const Admin = () => {
   }, [navigate, toast]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate('/auth');
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast({
+        title: "Sign Out Error",
+        description: "There was a problem signing out",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -84,16 +122,23 @@ const Admin = () => {
           </Button>
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         </div>
-        <Button onClick={handleSignOut} variant="outline">
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
+        <div className="flex items-center gap-4">
+          {adminEmail && (
+            <span className="text-sm text-gray-500">
+              Logged in as: {adminEmail}
+            </span>
+          )}
+          <Button onClick={handleSignOut} variant="outline">
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </div>
 
       <Alert className="mb-6 bg-blue-50 border-blue-200">
         <Info className="h-4 w-4" />
         <AlertDescription>
-          Admin email: admin@example.com - Register this email to access admin features.
+          Admin email: admin@example.com - {!isAdmin ? "Register this email to access admin features." : "You are logged in as admin."}
         </AlertDescription>
       </Alert>
 

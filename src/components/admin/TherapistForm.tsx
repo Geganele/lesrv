@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 import type { Property } from "@/data/tools";
 
 interface TherapistFormProps {
@@ -17,6 +19,7 @@ interface TherapistFormProps {
 
 const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
   const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -57,6 +60,23 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
       });
     }
   }, [editingTherapist]);
+
+  // Check if user is authenticated as admin
+  useEffect(() => {
+    const checkAdminAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      
+      if (!data.session) {
+        setAuthError("You need to be logged in to manage therapists");
+      } else if (data.session.user.email !== 'admin@example.com') {
+        setAuthError("You need admin privileges to manage therapists");
+      } else {
+        setAuthError(null);
+      }
+    };
+    
+    checkAdminAuth();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -106,6 +126,17 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     setLoading(true);
 
     try {
+      // First verify the user is still authenticated as admin
+      const { data: authData } = await supabase.auth.getSession();
+      
+      if (!authData.session) {
+        throw new Error("You must be logged in to save therapists");
+      }
+      
+      if (authData.session.user.email !== 'admin@example.com') {
+        throw new Error("You need admin privileges to save therapists");
+      }
+
       // Convert form data to match the database schema
       const therapistData = {
         name: formData.name,
@@ -124,6 +155,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
       };
 
       console.log("Attempting to save therapist with data:", therapistData);
+      console.log("Current user:", authData.session.user.email);
 
       let response;
       if (editingTherapist) {
@@ -188,9 +220,18 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
         <CardTitle>{editingTherapist ? 'Edit Therapist' : 'Add New Therapist'}</CardTitle>
       </CardHeader>
       <CardContent>
+        {authError && (
+          <Alert className="mb-4 bg-red-50 border-red-200">
+            <Info className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-600">
+              {authError}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Therapist Name</Label>
+            <Label htmlFor="name">Business Name</Label>
             <Input 
               id="name" 
               name="name" 
@@ -372,7 +413,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
             <Label htmlFor="featured">Featured Therapist</Label>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || !!authError}>
             {loading ? "Saving..." : (editingTherapist ? "Update Therapist" : "Add Therapist")}
           </Button>
         </form>
