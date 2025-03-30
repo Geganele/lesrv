@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TherapistForm from "@/components/admin/TherapistForm";
+import { TherapistForm } from "@/components/admin/therapist-form";
 import TherapistsList from "@/components/admin/TherapistsList";
 import SubscriptionList from "@/components/admin/SubscriptionList";
 import { Button } from "@/components/ui/button";
