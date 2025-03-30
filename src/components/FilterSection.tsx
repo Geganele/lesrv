@@ -29,7 +29,7 @@ const FilterSection = ({
       <div className="space-y-6">
         <CategoryFilter
           selectedCategory={selectedCategory}
-          onSelectCategory={onCategorySelect}
+          onCategorySelect={onCategorySelect}
         />
         <TagFilter
           selectedTags={selectedTags}

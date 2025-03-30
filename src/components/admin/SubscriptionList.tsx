@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,6 +13,8 @@ interface Subscription {
   status: string;
   subscription_type: string;
   created_at: string;
+  current_period_start: string | null;
+  current_period_end: string | null;
   user_email?: string;
 }
 
@@ -120,7 +123,7 @@ const SubscriptionList = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>{subscription.created_at}</TableCell>
-                        <TableCell>{subscription.expire_at || 'N/A'}</TableCell>
+                        <TableCell>{subscription.current_period_end || 'N/A'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
