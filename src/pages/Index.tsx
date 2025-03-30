@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,8 +44,7 @@ const Index = () => {
         
         const { data, error } = await supabase
           .from('therapists')
-          .select('*')
-          .timeout(10000); // Adding timeout for better error handling
+          .select('*');
         
         if (error) {
           console.error("Supabase error:", error);
