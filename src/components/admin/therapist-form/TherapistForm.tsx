@@ -5,7 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Loader2, Info, AlertCircle } from "lucide-react";
 import type { Property } from "@/data/tools";
 import { useAuthCheck } from "./hooks/useAuthCheck";
 import BasicDetailsSection from "./sections/BasicDetailsSection";
@@ -13,6 +13,8 @@ import ImagesSection from "./sections/ImagesSection";
 import TagsSection from "./sections/TagsSection";
 import ContactSection from "./sections/ContactSection";
 import FeaturedToggle from "./sections/FeaturedToggle";
+import CategorySelect from "./sections/CategorySelect";
+import PricingSelect from "./sections/PricingSelect";
 
 interface TherapistFormProps {
   editingTherapist?: Property;
@@ -26,7 +28,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     name: '',
     logo: '',
     images: [] as string[],
-    rating: 0,
+    rating: 4.5,
     reviews: 0,
     pricing: '',
     description: '',
@@ -38,7 +40,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     agent_title: ''
   });
   const { toast } = useToast();
-  const { authError } = useAuthCheck();
+  const { authError, isAdmin, loading: authLoading } = useAuthCheck();
 
   useEffect(() => {
     if (editingTherapist) {
@@ -66,6 +68,10 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   const handleSwitchChange = (checked: boolean) => {
     setFormData(prev => ({ ...prev, featured: checked }));
   };
@@ -75,14 +81,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     setLoading(true);
 
     try {
-      // First verify the user is still authenticated as admin
-      const { data: authData } = await supabase.auth.getSession();
-      
-      if (!authData.session) {
-        throw new Error("You must be logged in to save therapists");
-      }
-      
-      if (authData.session.user.email !== 'admin@example.com') {
+      if (!isAdmin) {
         throw new Error("You need admin privileges to save therapists");
       }
 
@@ -103,8 +102,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
         agent_title: formData.agent_title
       };
 
-      console.log("Attempting to save therapist with data:", therapistData);
-      console.log("Current user:", authData.session.user.email);
+      console.log("Saving therapist data:", therapistData);
 
       let response;
       if (editingTherapist) {
@@ -135,7 +133,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
           name: '',
           logo: '',
           images: [],
-          rating: 0,
+          rating: 4.5,
           reviews: 0,
           pricing: '',
           description: '',
@@ -195,6 +193,20 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     }));
   };
 
+  if (authLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{editingTherapist ? 'Edit Therapist' : 'Add New Therapist'}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center items-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Checking authentication...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -203,18 +215,44 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
       <CardContent>
         {authError && (
           <Alert className="mb-4 bg-red-50 border-red-200">
-            <Info className="h-4 w-4 text-red-600" />
+            <AlertCircle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-600">
               {authError}
             </AlertDescription>
           </Alert>
         )}
 
+        {!authError && !isAdmin && (
+          <Alert className="mb-4 bg-yellow-50 border-yellow-200">
+            <Info className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-600">
+              Admin verification in progress. If you're admin@example.com, you should get access soon.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <BasicDetailsSection 
-            formData={formData}
+            formData={{
+              name: formData.name,
+              description: formData.description,
+              rating: formData.rating,
+              reviews: formData.reviews
+            }}
             handleChange={handleChange}
           />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CategorySelect 
+              value={formData.category}
+              onChange={(value) => handleFieldChange('category', value)}
+            />
+            
+            <PricingSelect
+              value={formData.pricing}
+              onChange={(value) => handleFieldChange('pricing', value)}
+            />
+          </div>
           
           <ImagesSection
             formData={formData}
@@ -238,8 +276,19 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
             onToggle={handleSwitchChange}
           />
 
-          <Button type="submit" className="w-full" disabled={loading || !!authError}>
-            {loading ? "Saving..." : (editingTherapist ? "Update Therapist" : "Add Therapist")}
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={loading || !!authError || !isAdmin}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {editingTherapist ? "Updating..." : "Saving..."}
+              </>
+            ) : (
+              editingTherapist ? "Update Therapist" : "Add Therapist"
+            )}
           </Button>
         </form>
       </CardContent>

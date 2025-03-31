@@ -8,7 +8,7 @@ import { TherapistForm } from "@/components/admin/therapist-form";
 import TherapistsList from "@/components/admin/TherapistsList";
 import SubscriptionList from "@/components/admin/SubscriptionList";
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft, Info } from "lucide-react";
+import { LogOut, ArrowLeft, Info, Shield, User } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Admin = () => {
@@ -16,40 +16,44 @@ const Admin = () => {
   const [session, setSession] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
+          console.error("Auth check error:", error);
           throw error;
         }
 
+        console.log("Auth session data:", data);
         setSession(data.session);
         setAdminEmail(data.session?.user?.email || null);
         
         // Admin check - email based for this demo
         if (data.session?.user?.email === 'admin@example.com') {
           setIsAdmin(true);
+          setAuthError(null);
           console.log("Admin authenticated successfully:", data.session.user.email);
-        } else {
+        } else if (data.session) {
           setIsAdmin(false);
+          setAuthError("You need admin privileges to access this page");
           console.log("Not admin:", data.session?.user?.email);
           
-          // If logged in but not admin, redirect to home with message
-          if (data.session) {
-            toast({
-              title: "Access Denied",
-              description: "You don't have admin privileges",
-              variant: "destructive",
-            });
-            navigate('/');
-          } else {
-            navigate('/auth');
-          }
+          // If logged in but not admin, show message but don't redirect yet
+          toast({
+            title: "Access Restricted",
+            description: "Only admin users can access this dashboard fully",
+            variant: "destructive",
+          });
+        } else {
+          setAuthError("Please log in to access the admin dashboard");
+          navigate('/auth');
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -75,9 +79,12 @@ const Admin = () => {
           navigate('/auth');
         } else if (session.user.email === 'admin@example.com') {
           setIsAdmin(true);
+          setAuthError(null);
+          setAdminEmail(session.user.email);
         } else {
           setIsAdmin(false);
-          navigate('/');
+          setAuthError("You need admin privileges to access this page");
+          setAdminEmail(session.user.email);
         }
       }
     );
@@ -87,9 +94,14 @@ const Admin = () => {
 
   const handleSignOut = async () => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate('/auth');
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out",
+      });
     } catch (error) {
       console.error("Sign out error:", error);
       toast({
@@ -97,6 +109,8 @@ const Admin = () => {
         description: "There was a problem signing out",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,10 +120,6 @@ const Admin = () => {
         <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-primary rounded-full"></div>
       </div>
     );
-  }
-
-  if (!isAdmin) {
-    return null; // Prevent flickering while redirecting
   }
 
   return (
@@ -124,9 +134,15 @@ const Admin = () => {
         </div>
         <div className="flex items-center gap-4">
           {adminEmail && (
-            <span className="text-sm text-gray-500">
-              Logged in as: {adminEmail}
-            </span>
+            <div className="flex items-center bg-slate-100 px-3 py-1 rounded-full text-sm">
+              <User className="h-4 w-4 mr-2 text-slate-600" />
+              <span className="text-slate-700">
+                {adminEmail}
+              </span>
+              {isAdmin && (
+                <Shield className="h-4 w-4 ml-2 text-green-600" />
+              )}
+            </div>
           )}
           <Button onClick={handleSignOut} variant="outline">
             <LogOut className="h-4 w-4 mr-2" />
@@ -135,12 +151,21 @@ const Admin = () => {
         </div>
       </div>
 
-      <Alert className="mb-6 bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          Admin email: admin@example.com - {!isAdmin ? "Register this email to access admin features." : "You are logged in as admin."}
-        </AlertDescription>
-      </Alert>
+      {authError ? (
+        <Alert className="mb-6 bg-red-50 border-red-200">
+          <Info className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-600">
+            {authError}
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="mb-6 bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Admin email: admin@example.com {!isAdmin ? "- Register this email to access admin features." : "- You are logged in as admin."}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Tabs defaultValue="therapists" className="w-full">
         <TabsList className="mb-6">

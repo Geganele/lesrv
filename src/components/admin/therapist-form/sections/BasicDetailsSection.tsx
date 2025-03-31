@@ -6,9 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface BasicDetailsSectionProps {
   formData: {
     name: string;
-    category: string;
     description: string;
-    pricing: string;
     rating: number;
     reviews: number;
   };
@@ -31,18 +29,6 @@ const BasicDetailsSection = ({ formData, handleChange }: BasicDetailsSectionProp
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category">Location</Label>
-        <Input 
-          id="category" 
-          name="category" 
-          value={formData.category} 
-          onChange={handleChange} 
-          required 
-          placeholder="e.g., Johannesburg"
-        />
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Textarea 
           id="description" 
@@ -51,18 +37,7 @@ const BasicDetailsSection = ({ formData, handleChange }: BasicDetailsSectionProp
           onChange={handleChange} 
           required 
           placeholder="Brief description of services offered"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="pricing">Pricing</Label>
-        <Input 
-          id="pricing" 
-          name="pricing" 
-          value={formData.pricing} 
-          onChange={handleChange} 
-          required 
-          placeholder="e.g., R 350/hr"
+          className="min-h-[100px]"
         />
       </div>
 
