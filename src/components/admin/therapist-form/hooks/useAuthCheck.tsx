@@ -29,8 +29,9 @@ export const useAuthCheck = () => {
         }
         
         // Check if the email matches admin email
-        const isAdminUser = data.session.user.email === 'admin@example.com';
-        console.log("User email:", data.session.user.email);
+        const userEmail = data.session.user.email;
+        console.log("User email:", userEmail);
+        const isAdminUser = userEmail === 'admin@example.com';
         console.log("Is admin:", isAdminUser);
         
         if (!isAdminUser) {
@@ -54,7 +55,7 @@ export const useAuthCheck = () => {
     
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event);
+      console.log("Auth state changed:", event, session?.user?.email);
       if (event === 'SIGNED_OUT') {
         setAuthError("You need to be logged in to manage therapists");
         setIsAdmin(false);

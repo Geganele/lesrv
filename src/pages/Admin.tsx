@@ -8,7 +8,7 @@ import { TherapistForm } from "@/components/admin/therapist-form";
 import TherapistsList from "@/components/admin/TherapistsList";
 import SubscriptionList from "@/components/admin/SubscriptionList";
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft, Info, Shield, User } from "lucide-react";
+import { LogOut, ArrowLeft, Info, Shield, User, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Admin = () => {
@@ -17,57 +17,93 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [refreshingAuth, setRefreshingAuth] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Auth check error:", error);
-          throw error;
-        }
+  const checkAuth = async (forceRefresh = false) => {
+    try {
+      setLoading(true);
+      if (forceRefresh) {
+        setRefreshingAuth(true);
+      }
 
-        console.log("Auth session data:", data);
-        setSession(data.session);
-        setAdminEmail(data.session?.user?.email || null);
-        
-        // Admin check - email based for this demo
-        if (data.session?.user?.email === 'admin@example.com') {
-          setIsAdmin(true);
-          setAuthError(null);
-          console.log("Admin authenticated successfully:", data.session.user.email);
-        } else if (data.session) {
-          setIsAdmin(false);
-          setAuthError("You need admin privileges to access this page");
-          console.log("Not admin:", data.session?.user?.email);
-          
-          // If logged in but not admin, show message but don't redirect yet
-          toast({
-            title: "Access Restricted",
-            description: "Only admin users can access this dashboard fully",
-            variant: "destructive",
-          });
-        } else {
-          setAuthError("Please log in to access the admin dashboard");
-          navigate('/auth');
-        }
-      } catch (error) {
+      // Get current session
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
         console.error("Auth check error:", error);
+        throw error;
+      }
+
+      console.log("Auth session data:", data);
+      setSession(data.session);
+      setAdminEmail(data.session?.user?.email || null);
+      
+      // If no session, redirect to auth
+      if (!data.session) {
+        setAuthError("Please log in to access the admin dashboard");
+        navigate('/auth');
+        return;
+      }
+
+      // Log token contents for debugging
+      if (data.session) {
+        try {
+          const tokenParts = data.session.access_token.split('.');
+          const payload = JSON.parse(atob(tokenParts[1]));
+          console.log("JWT payload:", payload);
+        } catch (e) {
+          console.error("Error parsing JWT:", e);
+        }
+      }
+      
+      // Admin check - email based for this demo
+      if (data.session?.user?.email === 'admin@example.com') {
+        setIsAdmin(true);
+        setAuthError(null);
+        console.log("Admin authenticated successfully:", data.session.user.email);
+      } else {
+        setIsAdmin(false);
+        setAuthError("You need admin privileges to access this page");
+        console.log("Not admin:", data.session?.user?.email);
+        
+        // If logged in but not admin, show message but don't redirect
         toast({
-          title: "Authentication Error",
-          description: "There was a problem checking your credentials",
+          title: "Access Restricted",
+          description: "Only admin users can access this dashboard fully",
           variant: "destructive",
         });
-        navigate('/auth');
-      } finally {
-        setLoading(false);
       }
-    };
+      
+      // Optional refresh token
+      if (forceRefresh) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) {
+          console.error("Token refresh error:", refreshError);
+        } else {
+          console.log("Auth token refreshed successfully");
+          toast({
+            title: "Authentication Refreshed",
+            description: "Your authentication has been updated",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+      toast({
+        title: "Authentication Error",
+        description: "There was a problem checking your credentials",
+        variant: "destructive",
+      });
+      navigate('/auth');
+    } finally {
+      setLoading(false);
+      setRefreshingAuth(false);
+    }
+  };
 
+  useEffect(() => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -114,7 +150,11 @@ const Admin = () => {
     }
   };
 
-  if (loading) {
+  const handleRefreshAuth = () => {
+    checkAuth(true);
+  };
+
+  if (loading && !refreshingAuth) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-primary rounded-full"></div>
@@ -144,6 +184,15 @@ const Admin = () => {
               )}
             </div>
           )}
+          <Button 
+            onClick={handleRefreshAuth} 
+            variant="outline" 
+            size="sm" 
+            disabled={refreshingAuth}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshingAuth ? 'animate-spin' : ''}`} />
+            Refresh Auth
+          </Button>
           <Button onClick={handleSignOut} variant="outline">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out

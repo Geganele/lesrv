@@ -1,71 +1,38 @@
 
-import { useState, useEffect } from "react";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue 
-} from "@/components/ui/select";
+import React from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
 
 interface CategorySelectProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-const PREDEFINED_LOCATIONS = [
-  "Johannesburg",
-  "Cape Town",
-  "Durban",
-  "Pretoria",
-  "Port Elizabeth",
-  "Bloemfontein",
-  "East London",
-  "Nelspruit",
-  "Kimberley",
-  "Polokwane"
+const categories = [
+  "Deep Tissue Massage",
+  "Swedish Massage",
+  "Hot Stone Massage",
+  "Sports Massage",
+  "Aromatherapy Massage",
+  "Prenatal Massage",
+  "Thai Massage",
+  "Reflexology",
+  "Shiatsu",
+  "Chair Massage"
 ];
 
-const CategorySelect = ({ value, onChange }: CategorySelectProps) => {
-  const [locations, setLocations] = useState<string[]>(PREDEFINED_LOCATIONS);
-  
-  useEffect(() => {
-    // Try to fetch locations from the database if available
-    const fetchLocations = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('locations')
-          .select('name')
-          .order('name');
-        
-        if (!error && data && data.length > 0) {
-          setLocations(data.map(loc => loc.name));
-        }
-      } catch (err) {
-        console.error("Error fetching locations:", err);
-        // Fall back to predefined locations
-      }
-    };
-    
-    fetchLocations();
-  }, []);
-
+const CategorySelect: React.FC<CategorySelectProps> = ({ value, onChange }) => {
   return (
     <div className="space-y-2">
-      <Label htmlFor="category">Location</Label>
-      <Select 
-        value={value} 
-        onValueChange={onChange}
-      >
+      <Label htmlFor="category">Category</Label>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="category">
-          <SelectValue placeholder="Select a location" />
+          <SelectValue placeholder="Select category" />
         </SelectTrigger>
         <SelectContent>
-          {locations.map((location) => (
-            <SelectItem key={location} value={location}>
-              {location}
+          {categories.map((category) => (
+            <SelectItem key={category} value={category}>
+              {category}
             </SelectItem>
           ))}
         </SelectContent>

@@ -81,6 +81,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
     setLoading(true);
 
     try {
+      console.log("Checking admin status:", isAdmin);
       if (!isAdmin) {
         throw new Error("You need admin privileges to save therapists");
       }
@@ -153,7 +154,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
       console.error("Error saving therapist:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save therapist. Please make sure you're logged in as admin.",
+        description: error instanceof Error ? error.message : "Failed to save therapist. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -279,7 +280,7 @@ const TherapistForm = ({ editingTherapist, onSaved }: TherapistFormProps) => {
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={loading || !!authError || !isAdmin}
+            disabled={loading || !isAdmin}
           >
             {loading ? (
               <>
